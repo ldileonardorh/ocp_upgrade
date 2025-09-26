@@ -1,0 +1,26 @@
+---
+- name: Prehook plabook for cluster upgrade through ClusterCurator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Debug ocp cluster
+      ansible.builtin.debug:
+        msg: "Executing prehook upgrade for ocp cluster: {{ ocp_cluster }} to version {{ ocp_target_version }}"
+    
+    - name: Create nodes list
+      ansible.builtin.set_fact:
+        nodes_update: "{{ worker_nodes.split(',') }}"
+
+    - name: Label all nodes in list
+      kubernetes.core.k8s:
+        state: present
+        kind: Node 
+        name: "{{ item }}"
+        definition:
+          metadata:
+            labels: 
+              cluster-target-version: "{{ ocp_target_version }}"
+        merge_type: merge
+      loop: "{{ nodes_update }}" 
+          

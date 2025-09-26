@@ -1,0 +1,40 @@
+---
+- name: Prehook plabook for cluster upgrade through ClusterCurator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Debug ocp cluster
+      ansible.builtin.debug:
+        msg: "Executing prehook upgrade for ocp cluster: {{ ocp_cluster }} to version {{ ocp_target_version }}"
+    
+    - name: Pause default worker MCP
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: machineconfiguration.openshift.io/v1
+          kind: MachineConfigPool
+          metadata:
+            name: worker
+          spec:
+            paused: true
+          merge_type:
+            - merge
+
+    - name: Create a Service object from an inline definition
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: machineconfiguration.openshift.io/v1
+          kind: MachineConfigPool
+          metadata:
+            name: worker-upgrade
+          spec:
+            machineConfigSelector:
+              matchLabels:
+                machineconfiguration.openshift.io/role: worker
+            nodeSelector:
+              matchLabels:
+                node-role.kubernetes.io/worker: ''
+                cluster-target-version: "{{ ocp_target_version }}"
+            paused: false
