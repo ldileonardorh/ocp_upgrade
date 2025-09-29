@@ -13,6 +13,21 @@
         api_key: "{{ api_key }}"
         host: "{{ api_url }}"
         validate_certs: false
+        state: absent
+        definition:
+          apiVersion: cluster.open-cluster-management.io/v1beta1
+          kind: ClusterCurator
+          metadata:
+            labels:
+              open-cluster-management: curator
+            name: "{{ ocp_cluster }}"
+            namespace: "{{ ocp_cluster }}"
+
+    - name: Create Cluster Curator
+      kubernetes.core.k8s:
+        api_key: "{{ api_key }}"
+        host: "{{ api_url }}"
+        validate_certs: false
         state: present
         definition:
           apiVersion: cluster.open-cluster-management.io/v1beta1
