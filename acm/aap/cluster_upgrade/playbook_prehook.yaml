@@ -10,6 +10,9 @@
     
     - name: Pause default worker MCP
       kubernetes.core.k8s:
+        api_key: "{{ api_key }}"
+        host: "{{ api_url }}"
+        validate_certs: false
         state: present
         definition:
           apiVersion: machineconfiguration.openshift.io/v1
@@ -23,6 +26,9 @@
 
     - name: Create a Service object from an inline definition
       kubernetes.core.k8s:
+        api_key: "{{ api_key }}"
+        host: "{{ api_url }}"
+        validate_certs: false
         state: present
         definition:
           apiVersion: machineconfiguration.openshift.io/v1

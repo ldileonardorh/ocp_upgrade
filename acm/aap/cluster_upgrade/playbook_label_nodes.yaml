@@ -14,6 +14,9 @@
 
     - name: Label all nodes in list
       kubernetes.core.k8s:
+        api_key: "{{ api_key }}"
+        host: "{{ api_url }}"
+        validate_certs: false
         state: present
         kind: Node 
         name: "{{ item }}"

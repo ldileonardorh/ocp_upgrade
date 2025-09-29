@@ -1,0 +1,36 @@
+---
+- name: Prehook plabook for cluster upgrade through ClusterCurator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Debug ocp cluster
+      ansible.builtin.debug:
+        msg: "Executing prehook upgrade for ocp cluster: {{ ocp_cluster }} to version {{ ocp_target_version }}"
+    
+    - name: Create Cluster Curator
+      kubernetes.core.k8s:
+        api_key: "{{ api_key }}"
+        host: "{{ api_url }}"
+        validate_certs: false
+        state: present
+        definition:
+          apiVersion: cluster.open-cluster-management.io/v1beta1
+          kind: ClusterCurator
+          metadata:
+            labels:
+              open-cluster-management: curator
+            name: "{{ ocp_cluster }}"
+            namespace: "{{ ocp_cluster }}"
+          spec:
+            desiredCuration: upgrade
+            destroy:
+              jobMonitorTimeout: 5
+            install:
+              jobMonitorTimeout: 5
+            inventory: default
+            scale:
+              jobMonitorTimeout: 5
+            upgrade:
+              desiredUpdate: "{{ ocp_target_version }}"
+              monitorTimeout: 120
